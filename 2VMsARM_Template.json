@@ -1,0 +1,428 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"virtualMachines_cbdWorker1_name": {
+			"defaultValue": "cbdWorker1",
+			"type": "String"
+		},
+		"virtualMachines_cbdWorker2_name": {
+			"defaultValue": "cbdWorker2",
+			"type": "String"
+		},
+		"networkInterfaces_cbdWorker1_name": {
+			"defaultValue": "cbdworker136",
+			"type": "String"
+		},
+		"networkInterfaces_cbdWorker2_name": {
+			"defaultValue": "cbdworker2177",
+			"type": "String"
+		},
+		"networkSecurityGroups_cbdmanager_nsg_name": {
+			"defaultValue": "cbdmanager-nsg",
+			"type": "String"
+		},
+		"networkSecurityGroups_cbdworker_nsg_name": {
+			"defaultValue": "cbdworker-nsg",
+			"type": "String"
+		},
+		"publicIPAddresses_cbdWorker1_ip_name": {
+			"defaultValue": "cbdWorker1-ip",
+			"type": "String"
+		},
+		"publicIPAddresses_cbdWorker2_ip_name": {
+			"defaultValue": "cbdWorker2-ip",
+			"type": "String"
+		},
+		"virtualNetworks_cbd_vnet_name": {
+			"defaultValue": "cbd-vnet",
+			"type": "String"
+		},
+		"storageAccounts_cbdresourcesdiag_name": {
+			"defaultValue": "cbdresourcesdiag117",
+			"type": "String"
+		},
+		"storageAccounts_cbdresourcesdisks_name": {
+			"defaultValue": "cbdresourcesdisks",
+			"type": "String"
+		},
+		"initial_password": {
+			"defaultValue": "init@DevCBD123",
+			"type": "String"
+		},
+		"initial_username": {
+			"defaultValue": "devcbd",
+			"type": "String"
+		}
+	},
+	"resources": [
+		{
+			"type": "Microsoft.Compute/virtualMachines",
+			"name": "[parameters('virtualMachines_cbdWorker1_name')]",
+			"apiVersion": "2016-04-30-preview",
+			"location": "[resourceGroup().location]",
+			"properties": {
+				"hardwareProfile": {
+					"vmSize": "Standard_DS2_v2"
+				},
+				"storageProfile": {
+					"imageReference": {
+						"publisher": "OpenLogic",
+						"offer": "CentOS",
+						"sku": "7.3",
+						"version": "latest"
+					},
+					"osDisk": {
+						"osType": "Linux",
+						"name": "[parameters('virtualMachines_cbdWorker1_name')]",
+						"createOption": "FromImage",
+						"vhd": {
+							"uri": "[concat('https', '://', parameters('storageAccounts_cbdresourcesdisks_name'), '.blob.core.windows.net', concat('/vhds/', parameters('virtualMachines_cbdWorker1_name'),'20170517102345.vhd'))]"
+						},
+						"caching": "ReadWrite"
+					},
+					"dataDisks": []
+				},
+				"osProfile": {
+					"computerName": "[parameters('virtualMachines_cbdWorker1_name')]",
+					"adminUsername": "[parameters('initial_username')]",
+					"adminPassword": "[parameters('initial_password')]",
+					"linuxConfiguration": {
+						"disablePasswordAuthentication": false
+					},
+					"secrets": []
+				},
+				"networkProfile": {
+					"networkInterfaces": [
+						{
+							"id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_cbdWorker1_name'))]"
+						}
+					]
+				},
+				"diagnosticsProfile": {
+					"bootDiagnostics": {
+						"enabled": true,
+						"storageUri": "[concat('https', '://', parameters('storageAccounts_cbdresourcesdiag_name'), '.blob.core.windows.net', '/')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_cbdresourcesdisks_name'))]",
+				"[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_cbdWorker1_name'))]",
+				"[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_cbdresourcesdiag_name'))]"
+			]
+		},
+		{
+			"type": "Microsoft.Compute/virtualMachines",
+			"name": "[parameters('virtualMachines_cbdWorker2_name')]",
+			"apiVersion": "2016-04-30-preview",
+			"location": "[resourceGroup().location]",
+			"properties": {
+				"hardwareProfile": {
+					"vmSize": "Standard_DS2"
+				},
+				"storageProfile": {
+					"imageReference": {
+						"publisher": "OpenLogic",
+						"offer": "CentOS",
+						"sku": "7.3",
+						"version": "latest"
+					},
+					"osDisk": {
+						"osType": "Linux",
+						"name": "[parameters('virtualMachines_cbdWorker2_name')]",
+						"createOption": "FromImage",
+						"vhd": {
+							"uri": "[concat('https', '://', parameters('storageAccounts_cbdresourcesdisks_name'), '.blob.core.windows.net', concat('/vhds/', parameters('virtualMachines_cbdWorker2_name'),'20170517102458.vhd'))]"
+						},
+						"caching": "ReadWrite"
+					},
+					"dataDisks": []
+				},
+				"osProfile": {
+					"computerName": "[parameters('virtualMachines_cbdWorker2_name')]",
+					"adminUsername": "[parameters('initial_username')]",
+					"adminPassword": "[parameters('initial_password')]",
+					"linuxConfiguration": {
+						"disablePasswordAuthentication": false
+					},
+					"secrets": []
+				},
+				"networkProfile": {
+					"networkInterfaces": [
+						{
+							"id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_cbdWorker2_name'))]"
+						}
+					]
+				},
+				"diagnosticsProfile": {
+					"bootDiagnostics": {
+						"enabled": true,
+						"storageUri": "[concat('https', '://', parameters('storageAccounts_cbdresourcesdiag_name'), '.blob.core.windows.net', '/')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_cbdresourcesdisks_name'))]",
+				"[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_cbdWorker2_name'))]",
+				"[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_cbdresourcesdiag_name'))]"
+			]
+		},
+		{
+			"type": "Microsoft.Network/networkInterfaces",
+			"name": "[parameters('networkInterfaces_cbdWorker1_name')]",
+			"apiVersion": "2017-03-01",
+			"location": "[resourceGroup().location]",
+			"properties": {
+				"ipConfigurations": [
+					{
+						"name": "ipconfig1",
+						"properties": {
+							"privateIPAddress": "10.0.1.5",
+							"privateIPAllocationMethod": "Dynamic",
+							"publicIPAddress": {
+								"id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_cbdWorker1_ip_name'))]"
+							},
+							"subnet": {
+								"id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_cbd_vnet_name')), '/subnets/default')]"
+							}
+						}
+					}
+				],
+				"dnsSettings": {
+					"dnsServers": []
+				},
+				"enableIPForwarding": false,
+				"networkSecurityGroup": {
+					"id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_cbdworker_nsg_name'))]"
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_cbdWorker1_ip_name'))]",
+				"[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_cbd_vnet_name'))]",
+				"[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_cbdworker_nsg_name'))]"
+			]
+		},
+		{
+			"type": "Microsoft.Network/networkInterfaces",
+			"name": "[parameters('networkInterfaces_cbdWorker2_name')]",
+			"apiVersion": "2017-03-01",
+			"location": "[resourceGroup().location]",
+			"properties": {
+				"ipConfigurations": [
+					{
+						"name": "ipconfig1",
+						"properties": {
+							"privateIPAddress": "10.0.1.6",
+							"privateIPAllocationMethod": "Dynamic",
+							"publicIPAddress": {
+								"id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_cbdWorker2_ip_name'))]"
+							},
+							"subnet": {
+								"id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_cbd_vnet_name')), '/subnets/default')]"
+							}
+						}
+					}
+				],
+				"dnsSettings": {
+					"dnsServers": []
+				},
+				"enableIPForwarding": false,
+				"networkSecurityGroup": {
+					"id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_cbdworker_nsg_name'))]"
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_cbdWorker2_ip_name'))]",
+				"[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_cbd_vnet_name'))]",
+				"[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_cbdworker_nsg_name'))]"
+			]
+		},
+		{
+			"type": "Microsoft.Network/networkSecurityGroups",
+			"name": "[parameters('networkSecurityGroups_cbdmanager_nsg_name')]",
+			"apiVersion": "2017-03-01",
+			"location": "[resourceGroup().location]",
+			"properties": {
+				"securityRules": [
+					{
+						"name": "default-allow-ssh",
+						"properties": {
+							"protocol": "TCP",
+							"sourcePortRange": "*",
+							"destinationPortRange": "22",
+							"sourceAddressPrefix": "*",
+							"destinationAddressPrefix": "*",
+							"access": "Allow",
+							"priority": 1000,
+							"direction": "Inbound"
+						}
+					},
+					{
+						"name": "8080",
+						"properties": {
+							"protocol": "*",
+							"sourcePortRange": "*",
+							"destinationPortRange": "80",
+							"sourceAddressPrefix": "*",
+							"destinationAddressPrefix": "*",
+							"access": "Allow",
+							"priority": 1010,
+							"direction": "Inbound"
+						}
+					},
+					{
+						"name": "gitlab",
+						"properties": {
+							"protocol": "*",
+							"sourcePortRange": "*",
+							"destinationPortRange": "80",
+							"sourceAddressPrefix": "*",
+							"destinationAddressPrefix": "*",
+							"access": "Allow",
+							"priority": 1020,
+							"direction": "Inbound"
+						}
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"type": "Microsoft.Network/networkSecurityGroups",
+			"name": "[parameters('networkSecurityGroups_cbdworker_nsg_name')]",
+			"apiVersion": "2017-03-01",
+			"location": "[resourceGroup().location]",
+			"properties": {
+				"securityRules": [
+					{
+						"name": "default-allow-ssh",
+						"properties": {
+							"protocol": "TCP",
+							"sourcePortRange": "*",
+							"destinationPortRange": "22",
+							"sourceAddressPrefix": "*",
+							"destinationAddressPrefix": "*",
+							"access": "Allow",
+							"priority": 1000,
+							"direction": "Inbound"
+						}
+					},
+					{
+						"name": "Jenkins",
+						"properties": {
+							"protocol": "*",
+							"sourcePortRange": "*",
+							"destinationPortRange": "8080",
+							"sourceAddressPrefix": "*",
+							"destinationAddressPrefix": "*",
+							"access": "Allow",
+							"priority": 1010,
+							"direction": "Inbound"
+						}
+					},
+					{
+						"name": "gitlab_http",
+						"properties": {
+							"protocol": "*",
+							"sourcePortRange": "*",
+							"destinationPortRange": "80",
+							"sourceAddressPrefix": "*",
+							"destinationAddressPrefix": "*",
+							"access": "Allow",
+							"priority": 1020,
+							"direction": "Inbound"
+						}
+					},
+					{
+						"name": "gitlab_http_exposed",
+						"properties": {
+							"protocol": "*",
+							"sourcePortRange": "*",
+							"destinationPortRange": "8083",
+							"sourceAddressPrefix": "*",
+							"destinationAddressPrefix": "*",
+							"access": "Allow",
+							"priority": 1030,
+							"direction": "Inbound"
+						}
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"type": "Microsoft.Network/publicIPAddresses",
+			"name": "[parameters('publicIPAddresses_cbdWorker1_ip_name')]",
+			"apiVersion": "2017-03-01",
+			"location": "[resourceGroup().location]",
+			"properties": {
+				"publicIPAllocationMethod": "Dynamic",
+				"idleTimeoutInMinutes": 4
+			},
+			"dependsOn": []
+		},
+		{
+			"type": "Microsoft.Network/publicIPAddresses",
+			"name": "[parameters('publicIPAddresses_cbdWorker2_ip_name')]",
+			"apiVersion": "2017-03-01",
+			"location": "[resourceGroup().location]",
+			"properties": {
+				"publicIPAllocationMethod": "Dynamic",
+				"idleTimeoutInMinutes": 4
+			},
+			"dependsOn": []
+		},
+		{
+			"type": "Microsoft.Network/virtualNetworks",
+			"name": "[parameters('virtualNetworks_cbd_vnet_name')]",
+			"apiVersion": "2017-03-01",
+			"location": "[resourceGroup().location]",
+			"properties": {
+				"addressSpace": {
+					"addressPrefixes": [
+						"10.0.1.0/24"
+					]
+				},
+				"subnets": [
+					{
+						"name": "default",
+						"properties": {
+							"addressPrefix": "10.0.1.0/24"
+						}
+					}
+				],
+				"virtualNetworkPeerings": []
+			},
+			"dependsOn": []
+		},
+		{
+			"type": "Microsoft.Storage/storageAccounts",
+			"sku": {
+				"name": "Standard_LRS",
+				"tier": "Standard"
+			},
+			"kind": "Storage",
+			"name": "[parameters('storageAccounts_cbdresourcesdiag_name')]",
+			"apiVersion": "2016-01-01",
+			"location": "[resourceGroup().location]",
+			"tags": {},
+			"properties": {},
+			"dependsOn": []
+		},
+		{
+			"type": "Microsoft.Storage/storageAccounts",
+			"sku": {
+				"name": "Premium_LRS",
+				"tier": "Premium"
+			},
+			"kind": "Storage",
+			"name": "[parameters('storageAccounts_cbdresourcesdisks_name')]",
+			"apiVersion": "2016-01-01",
+			"location": "[resourceGroup().location]",
+			"tags": {},
+			"properties": {},
+			"dependsOn": []
+		}
+	]
+}
